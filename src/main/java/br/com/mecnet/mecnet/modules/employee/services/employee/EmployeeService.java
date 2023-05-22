@@ -35,20 +35,20 @@ public class EmployeeService {
 
     }
     public ResponseEntity<Object> updateUser(EmployeeRequestDto employee, UUID id) {
-        Optional<Employee> parkingSpotModelOptional = employeeRepository.findById(id);
+        Optional<Employee> employeeOptional = employeeRepository.findById(id);
 
-        if(parkingSpotModelOptional.isEmpty()){
+        if(employeeOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Usuário não encontrado!");
 
         }
         var employeeModel = new Employee();
         BeanUtils.copyProperties(employee, employeeModel);
-        employeeModel.setId(parkingSpotModelOptional.get().getId());
+        employeeModel.setId(employeeOptional.get().getId());
         String auxRole = "ROLE_USER";
         if(employee.getIsAdmin()) auxRole = "ROLE_ADMIN";
         employeeModel.setRole(auxRole);
         employeeModel.setPassWord(passwordEncoder().encode(employee.getPassWord()));
-        employeeModel.setCreatedAt(parkingSpotModelOptional.get().getCreatedAt());
+        employeeModel.setCreatedAt(employeeOptional.get().getCreatedAt());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeRepository.save(employeeModel));
 

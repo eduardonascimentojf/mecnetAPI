@@ -3,11 +3,12 @@ package br.com.mecnet.mecnet.modules.employee.services.employee;
 
 import br.com.mecnet.mecnet.modules.employee.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
 import javax.transaction.Transactional;
 
-
+@Service
 public class EmployeeServiceAux {
     @Autowired
     EmployeeRepository employeeRepository;

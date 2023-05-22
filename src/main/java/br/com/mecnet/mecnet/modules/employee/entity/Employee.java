@@ -1,5 +1,6 @@
 package br.com.mecnet.mecnet.modules.employee.entity;
 
+import br.com.mecnet.mecnet.modules.sale.Entity.Sale;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -63,6 +64,9 @@ public class Employee implements UserDetails, Serializable {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @OneToMany
+    @JoinColumn(name = "employee_id")
+    private List<Sale> sales;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
