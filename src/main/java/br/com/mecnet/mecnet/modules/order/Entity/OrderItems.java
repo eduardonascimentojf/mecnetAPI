@@ -1,6 +1,7 @@
 package br.com.mecnet.mecnet.modules.order.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,8 +41,9 @@ public class OrderItems {
     private Float price;
 
     @Column(name = "fullValue", nullable = false)
-    private Float fullValue = 0F;;
+    private Float fullValue = 0F;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "order_id")
     private Order order_id;

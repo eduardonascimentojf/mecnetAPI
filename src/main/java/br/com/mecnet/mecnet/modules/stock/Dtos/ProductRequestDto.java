@@ -7,11 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import java.util.UUID;
+
+import java.util.ArrayList;
+
 
 @Getter
 @Setter
@@ -32,7 +30,7 @@ public class ProductRequestDto  {
 
     private Integer stock;
 
-    private String image;
+    private ArrayList<String> image;
 
     private AutoStock autoStock;
 

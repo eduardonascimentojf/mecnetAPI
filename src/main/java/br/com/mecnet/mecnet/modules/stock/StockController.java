@@ -10,6 +10,7 @@ import br.com.mecnet.mecnet.modules.stock.repositories.ProductRepository;
 import br.com.mecnet.mecnet.modules.stock.repositories.StockRepository;
 import br.com.mecnet.mecnet.modules.stock.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,15 @@ public class StockController {
     @GetMapping
     @RolesAllowed({"USER","ADMIN"})
     public Stock get_Stock(){
-        return stockRepository.findAll().get(0);
+        List<Stock> optionalStock = stockRepository.findAll();
+        if(optionalStock.isEmpty()){
+            Stock Newstock = new Stock();
+            return stockRepository.save(Newstock);
+
+
+        }
+        return optionalStock.get(0);
+
     }
 
     @GetMapping("/products")
@@ -52,8 +61,10 @@ public class StockController {
     @PostMapping("/products")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Object> createProduct(@RequestBody @Valid Product data){
+        Product product = stockService.createProduct(data);
 
-        return stockService.createProduct(data);
+        stockService.setProductId(product.getId(), product.getStock_id().getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
     @PutMapping("/products/{id}")
     @RolesAllowed("ADMIN")
@@ -62,8 +73,9 @@ public class StockController {
     }
     @DeleteMapping("/products")
     @RolesAllowed("ADMIN")
-    public void deleteProduct(@RequestBody ProductDeleteDto deleteDto){
+    public ResponseEntity<String> deleteProduct(@RequestBody ProductDeleteDto deleteDto){
         productRepository.deleteById(deleteDto.id());
+        return ResponseEntity.status(HttpStatus.OK).body("Excluído com sucesso");
     }
     @PutMapping("/products/autoStock/{id}")
     @RolesAllowed("ADMIN")

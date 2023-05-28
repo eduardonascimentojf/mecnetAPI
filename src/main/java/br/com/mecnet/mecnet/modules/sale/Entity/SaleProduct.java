@@ -1,6 +1,7 @@
 package br.com.mecnet.mecnet.modules.sale.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,7 @@ public class SaleProduct {
     @Column(name = "fullValue", nullable = false)
     private Float fullValue = 0f;
 
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "sale_id")
     private Sale sale_id;

@@ -1,5 +1,6 @@
 package br.com.mecnet.mecnet.modules.stock.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,7 +48,8 @@ public class AutoStock {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne()
+    @JsonIgnore
+    @OneToOne
     @JoinColumn(name = "product_id")
     private Product product_id;
 }

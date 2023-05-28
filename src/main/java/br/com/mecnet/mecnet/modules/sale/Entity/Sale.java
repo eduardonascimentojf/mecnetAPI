@@ -33,9 +33,6 @@ public class Sale {
     @Column(name = "seller", nullable = false)
     private String seller;
 
-    @Column(name = "employee_id", nullable = false)
-    private UUID employee_id;
-
     @Column(name = "client", nullable = false)
     private String client;
 
@@ -44,14 +41,16 @@ public class Sale {
 
     @Column(name = "price", nullable = false)
     private Float price = 0f;
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "employee")
-    private Employee employee;
+
+    @Column(name = "isActive", nullable = false)
+    private Boolean isActive = true;
 
     @JsonIgnore
-    @OneToMany()
-    @JoinColumn(name = "productsList")
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee_id;
+
+    @OneToMany(mappedBy = "sale_id")
     private List<SaleProduct> productsList = new ArrayList<>();
 
     @CreationTimestamp
@@ -62,16 +61,5 @@ public class Sale {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Sale(Sale sale){
-      this.id = sale.id;
-      this.seller = sale.seller;
-      this.employee_id  = sale.employee_id;
-      this.client = sale.client;
-      this.cpfClient = sale.cpfClient;
-      this.price = sale.price;
-      this.productsList = sale.productsList;
-      this.employee = sale.employee;
-      this.createdAt = sale.createdAt;
-      this.updatedAt = sale.updatedAt;
-    }
+
 }

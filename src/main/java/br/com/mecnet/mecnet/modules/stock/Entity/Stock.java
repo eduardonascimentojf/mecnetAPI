@@ -22,7 +22,6 @@ import java.util.UUID;
 
 public class Stock {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, unique = true)
@@ -30,6 +29,9 @@ public class Stock {
 
     @Column(name = "capacity", nullable = false)
     private Integer capacity = 100;
+
+    @Column(name = "productsQuantity", nullable = false)
+    private Integer productsQuantity = 0;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -39,11 +41,11 @@ public class Stock {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany
-    @JoinColumn(name = "products_id")
+    @OneToMany()
+    @JoinColumn(name = "products")
     private List<Product> products = new ArrayList<>();
 
-
-
-
+    public void addProduct(Product product) {
+        this.products.add(product);
+    }
 }

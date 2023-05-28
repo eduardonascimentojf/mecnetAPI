@@ -39,7 +39,6 @@ public class WebSecurityConfig {
                 .and().addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
                 .build();
 
-
     }
     @Bean
     public AuthenticationManager authenticationManager

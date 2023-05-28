@@ -15,6 +15,7 @@ import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -64,9 +65,8 @@ public class Employee implements UserDetails, Serializable {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @OneToMany
-    @JoinColumn(name = "employee_id")
-    private List<Sale> sales;
+    @OneToMany(mappedBy = "employee_id")
+    private List<Sale> sales =  new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

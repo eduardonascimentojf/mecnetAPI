@@ -5,6 +5,7 @@ import br.com.mecnet.mecnet.modules.order.Entity.OrderItems;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderItemsRepository;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderRepository;
 import br.com.mecnet.mecnet.modules.order.services.OrderService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +79,17 @@ public class OrderController {
     @DeleteMapping("/orderItems")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Object> deleteOrderItems(@RequestBody OrderItemsDeleteDto data){
+        Optional<OrderItems> orderItemsOptional = orderItemsRepository.findById(data.id());
+        Optional<Order> orderOptional = orderRepository.findOrderByIsComplete(false);
+        if(orderOptional.isEmpty() || orderItemsOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro interno");
+        }
+        Order orderModel = new Order();
+        BeanUtils.copyProperties(orderOptional.get(), orderModel);
+        orderModel.setId(orderOptional.get().getId());
+        orderModel.setCreatedAt(orderOptional.get().getCreatedAt());
+        orderModel.setFullValue(orderOptional.get().getFullValue() - orderItemsOptional.get().getFullValue());
+        ResponseEntity.status(HttpStatus.CREATED).body(orderRepository.save(orderModel));
         orderItemsRepository.deleteById(data.id());
         return ResponseEntity.status(HttpStatus.OK).body("Removido com sucesso");
     }

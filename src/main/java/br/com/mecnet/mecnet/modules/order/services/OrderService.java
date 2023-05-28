@@ -8,8 +8,12 @@ import br.com.mecnet.mecnet.modules.order.Entity.OrderItems;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderItemsRepository;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderRepository;
 import br.com.mecnet.mecnet.modules.stock.Dtos.ProductRequestDto;
+import br.com.mecnet.mecnet.modules.stock.Entity.AutoStock;
 import br.com.mecnet.mecnet.modules.stock.Entity.Product;
+import br.com.mecnet.mecnet.modules.stock.Entity.Stock;
+import br.com.mecnet.mecnet.modules.stock.repositories.AutoStockRepository;
 import br.com.mecnet.mecnet.modules.stock.repositories.ProductRepository;
+import br.com.mecnet.mecnet.modules.stock.repositories.StockRepository;
 import br.com.mecnet.mecnet.modules.stock.services.StockService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class OrderService {
@@ -34,7 +38,10 @@ public class OrderService {
     private OrderItemsRepository orderItemsRepository;
     @Autowired
     private StockService stockService;
-
+    @Autowired
+    private AutoStockRepository autoStockRepository;
+    @Autowired
+    private StockRepository stockRepository;
     @Autowired
     private ProductRepository productRepository;
 
@@ -54,9 +61,13 @@ public class OrderService {
 
     }
     public ResponseEntity<Object> setReceived(UUID id) {
+        AtomicInteger quantityProductsAdd  = new AtomicInteger();
         Optional<Order> orderOptional = orderRepository.findById(id);
         if(orderOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Pedido não encontrado!");
+        }
+        if(!orderOptional.get().getIsComplete()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: O pedido não foi comprado!");
         }
         List<OrderItems> orderList = orderOptional.get().getListOrderItems();
 
@@ -67,6 +78,7 @@ public class OrderService {
             orderItemsModel.setCreatedAt(order_itemsOptional.get().getCreatedAt());
             orderItemsModel.setId(order_itemsOptional.get().getId());
             orderItemsModel.setIsComplete(true);
+            quantityProductsAdd.addAndGet(orderItems.getAmount());
             orderItemsRepository.save(orderItemsModel);
             setReceived(order_itemsOptional.get());
 
@@ -81,6 +93,7 @@ public class OrderService {
 
         // TODO: Marcar o Orderitems como is Complete
 
+        stockService.setProductsQuantity(quantityProductsAdd.get());
         return ResponseEntity.status(HttpStatus.CREATED).body(orderRepository.save(orderModel));
 
     }
@@ -108,9 +121,16 @@ public class OrderService {
         }
 
         Optional<Product> productStockOptional = productRepository.findByIdCatalog(data.getProductCatalogId());
-        System.out.println(data.getAmount().toString());
+
         if(productStockOptional.isEmpty()){
+
+            AutoStock autoStock = new AutoStock();
+            autoStock = autoStockRepository.save(autoStock);
+            Stock stock = stockRepository.findAll().get(0);
+
             Product productModel = new Product();
+            productModel.setStock_id(stock);
+            productModel.setAutoStock(autoStock);
             productModel.setStock(data.getAmount());
             productModel.setName(productCatalogOptional.get().getName());
             productModel.setPrice((data.getPrice()*1.30F));
@@ -118,8 +138,15 @@ public class OrderService {
             productModel.setBrand(productCatalogOptional.get().getBrand());
             productModel.setManufacturer(productCatalogOptional.get().getManufacturer());
             productModel.setImage(productCatalogOptional.get().getImage());
+            Product newProduct = productRepository.save(productModel);
 
-            productRepository.save(productModel);
+            Stock stockModel = new Stock();
+            BeanUtils.copyProperties(stock, stockModel);
+            stockModel.setId(stock.getId());
+            stockModel.setCreatedAt(stock.getCreatedAt());
+            stockModel.getProducts().add(newProduct);
+            ResponseEntity.status(HttpStatus.CREATED).body(stockRepository.save(stockModel));
+
             ResponseEntity.status(HttpStatus.CREATED).body("Adicionado com sucesso");
             return;
         }
@@ -148,14 +175,22 @@ public class OrderService {
             }
         }
 
-
         Float valueFull = data.getPrice() * data.getAmount();
         data.setFullValue(valueFull);
-        orderOptional.get().setFullValue(orderOptional.get().getFullValue()+valueFull);
-        List<OrderItems> teste = orderOptional.get().getListOrderItems();
-        teste.add(data);
-        orderOptional.get().setListOrderItems(teste);
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderItemsRepository.save(data));
+        data.setOrder_id(orderOptional.get());
+        OrderItems orderItems = orderItemsRepository.save(data);
+
+        orderOptional.get().setFullValue(orderOptional.get().getFullValue() + valueFull);
+        orderOptional.get().getListOrderItems().add(orderItems);
+        Order orderModel = new Order();
+        BeanUtils.copyProperties(orderOptional.get(), orderModel);
+        orderModel.setId(orderOptional.get().getId());
+        orderModel.setCreatedAt(orderOptional.get().getCreatedAt());
+        orderModel.setFullValue(orderOptional.get().getFullValue());
+        ResponseEntity.status(HttpStatus.CREATED).body(orderRepository.save(orderModel));
+
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderItems);
     }
     public ResponseEntity<Object> updateOrderItems(OrderItems orderItem, UUID id) {
         Optional<OrderItems> orderItemsOptional = orderItemsRepository.findById(id);
@@ -163,7 +198,7 @@ public class OrderService {
         if (orderItemsOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Pedido Item não encontrado!");
         }
-        Optional<Order> orderOptional = orderRepository.findOrderByIsComplete(false);
+        Optional<Order> orderOptional = orderRepository.findOrderByIsComplete(false );
         if(orderOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Produto já comprado!");
         }
@@ -175,8 +210,9 @@ public class OrderService {
 
         var inActive = false;
         for (OrderItems listOrderItem : listOrderItems) {
-            if(listOrderItem.getId() == id) {
+            if (listOrderItem.getId() == id) {
                 inActive = true;
+                break;
             }
         }
         if(!inActive){

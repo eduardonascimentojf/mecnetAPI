@@ -18,16 +18,15 @@ public class TokenService {
                 .withSubject(employee.getUsername())
                 .withClaim("id", String.valueOf(employee.getId()))
                 .withExpiresAt(Date.from(LocalDateTime.now()
-                        .plusMinutes(180)
+                        .plusDays(7)
                         .toInstant(ZoneOffset.of("-03:00")))
-                ).sign(Algorithm.HMAC256("secreta"));
+                ).sign(Algorithm.HMAC256("DCC117>all"));
     }
 
 
     public String getSubject(String token) {
-        return JWT.require(Algorithm.HMAC256("secreta"))
+        return JWT.require(Algorithm.HMAC256("DCC117>all"))
                 .withIssuer("Employee")
                 .build().verify(token).getSubject();
-
     }
 }

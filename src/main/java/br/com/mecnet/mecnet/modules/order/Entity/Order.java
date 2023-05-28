@@ -39,8 +39,7 @@ public class Order {
     @Column(name = "fullValue", nullable = false)
     private Float fullValue = 0F;
 
-    @OneToMany()
-    @JoinColumn(name = "orderItems_id")
+    @OneToMany(mappedBy = "order_id")
     private List<OrderItems> listOrderItems = new ArrayList<>();
 
     @CreationTimestamp

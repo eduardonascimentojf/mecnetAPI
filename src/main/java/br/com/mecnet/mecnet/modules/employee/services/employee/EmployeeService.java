@@ -25,7 +25,6 @@ public class EmployeeService {
 
         if(employeeRepository.existsByUserName(employee.getUsername()) || employeeRepository.existsByEmail(employee.getEmail())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Usuário já cadastrado!");
-
         }
         String auxRole = "ROLE_USER";
         if(employee.getIsAdmin()) auxRole = "ROLE_ADMIN";

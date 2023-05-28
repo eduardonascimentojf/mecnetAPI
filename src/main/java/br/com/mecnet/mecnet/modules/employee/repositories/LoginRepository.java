@@ -10,5 +10,4 @@ public interface LoginRepository extends JpaRepository<Employee, UUID> {
 
     Employee findByUserName(String Username);
 
-
 }

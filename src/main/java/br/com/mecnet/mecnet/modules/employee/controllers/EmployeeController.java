@@ -9,6 +9,7 @@ import br.com.mecnet.mecnet.modules.employee.entity.Employee;
 import br.com.mecnet.mecnet.modules.employee.repositories.EmployeeRepository;
 import br.com.mecnet.mecnet.modules.employee.services.employee.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +48,8 @@ public class EmployeeController {
     }
 
     @DeleteMapping
-    public void deleteEmployee(@RequestBody EmployeeDeleteDto deleteDto){
+    public ResponseEntity<String> deleteEmployee(@RequestBody EmployeeDeleteDto deleteDto){
         employeeRepository.deleteById(deleteDto.id());
-
+        return ResponseEntity.status(HttpStatus.OK).body("Excluído com sucesso");
     }
 }

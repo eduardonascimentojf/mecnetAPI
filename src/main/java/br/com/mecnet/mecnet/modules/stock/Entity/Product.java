@@ -1,5 +1,6 @@
 package br.com.mecnet.mecnet.modules.stock.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 
 
@@ -49,13 +51,14 @@ public class Product {
     private Integer stock;
 
     @Column(name = "image", nullable = false)
-    private String image;
+    private ArrayList<String> image;
 
     @OneToOne
     @JoinColumn(name = "autoStock_id")
     private AutoStock autoStock;
 
-    @ManyToOne()
+    @JsonIgnore
+    @ManyToOne
     @JoinColumn(name = "stock_id")
     private Stock stock_id;
 

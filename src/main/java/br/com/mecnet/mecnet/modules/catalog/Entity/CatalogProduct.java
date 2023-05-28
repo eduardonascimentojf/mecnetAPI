@@ -7,6 +7,7 @@ import lombok.Setter;
 
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.UUID;
 
 
@@ -18,7 +19,6 @@ import java.util.UUID;
 @AllArgsConstructor
 
 public class CatalogProduct {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,7 +44,7 @@ public class CatalogProduct {
     private Integer stock;
 
     @Column(name = "image", nullable = false)
-    private String image;
+    private ArrayList<String> image;
 
     public CatalogProduct(CatalogProduct catalogProduct) {
         this.id = catalogProduct.id;

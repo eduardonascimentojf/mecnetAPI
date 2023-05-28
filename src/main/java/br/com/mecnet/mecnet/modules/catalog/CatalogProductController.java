@@ -57,8 +57,9 @@ public class CatalogProductController {
     }
     @DeleteMapping()
     @RolesAllowed("ADMIN")
-    public void deleteProduct(@RequestBody CatalogProductDeleteDt0 deleteDt0){
+    public ResponseEntity<String> deleteProduct(@RequestBody CatalogProductDeleteDt0 deleteDt0){
         catalogRepository.deleteById(deleteDt0.id());
+        return ResponseEntity.status(HttpStatus.OK).body("Excluído com sucesso");
     }
 
 }
