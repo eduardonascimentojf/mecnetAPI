@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers("/employee").hasRole("ADMIN")
                 .anyRequest().authenticated()
+                .and().cors()
                 .and().addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
                 .build();
 

@@ -16,5 +16,12 @@ public class EmployeeRequestDto  {
     private String userName;
     private String passWord;
     private Boolean isAdmin;
+    public EmployeeRequestDto(String name, String email, String userName, Boolean isAdmin) {
+        this.name = name;
+        this.email = email;
+        this.userName = userName;
+        this.isAdmin = isAdmin;
+    }
+
 
 }

@@ -7,6 +7,7 @@ import br.com.mecnet.mecnet.modules.order.repositories.OrderRepository;
 import br.com.mecnet.mecnet.modules.order.services.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class OrderController {
     @GetMapping("/all")
     @RolesAllowed({"USER","ADMIN"})
     public List<Order> getAllOrder(){
-        return orderRepository.findAll();
+        return orderRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
     }
 
     @GetMapping("/{id}")

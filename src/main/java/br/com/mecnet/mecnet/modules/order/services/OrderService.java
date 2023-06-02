@@ -69,6 +69,10 @@ public class OrderService {
         if(!orderOptional.get().getIsComplete()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: O pedido não foi comprado!");
         }
+        if(orderOptional.get().getReceived()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: O ja foi entregue foi comprado!");
+        }
+
         List<OrderItems> orderList = orderOptional.get().getListOrderItems();
 
         orderList.forEach(orderItems -> {
@@ -138,6 +142,7 @@ public class OrderService {
             productModel.setBrand(productCatalogOptional.get().getBrand());
             productModel.setManufacturer(productCatalogOptional.get().getManufacturer());
             productModel.setImage(productCatalogOptional.get().getImage());
+            productModel.setIdCatalog(data.getProductCatalogId());
             Product newProduct = productRepository.save(productModel);
 
             Stock stockModel = new Stock();
@@ -150,15 +155,15 @@ public class OrderService {
             ResponseEntity.status(HttpStatus.CREATED).body("Adicionado com sucesso");
             return;
         }
-        ProductRequestDto productModel = new ProductRequestDto();
-        productModel.setStock(data.getAmount());
+        Product productModel = new Product();
+        BeanUtils.copyProperties(productStockOptional.get(), productModel);
+
+        productModel.setId(productStockOptional.get().getId());
+        productModel.setStock(data.getAmount() + productStockOptional.get().getStock());
         productModel.setPrice((data.getPrice()*1.30F));
-        productModel.setName(productCatalogOptional.get().getName());
-        productModel.setDescription(productCatalogOptional.get().getDescription());
-        productModel.setBrand(productCatalogOptional.get().getBrand());
-        productModel.setManufacturer(productCatalogOptional.get().getManufacturer());
-        productModel.setImage(productCatalogOptional.get().getImage());
-        stockService.updateProduct(productModel, productStockOptional.get().getId());
+        productModel.setCreatedAt(productStockOptional.get().getCreatedAt());
+        productRepository.save(productModel);
+
         ResponseEntity.status(HttpStatus.CREATED).body("Atualizado com sucesso");
     }
     public ResponseEntity<Object> createOrderItems(OrderItems data) {
@@ -218,17 +223,20 @@ public class OrderService {
         if(!inActive){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Produto já comprado!");
         }
-        var orderItemsModel = new OrderItems();
-        BeanUtils.copyProperties(orderItem, orderItemsModel);
-        orderItemsModel.setId(orderItemsOptional.get().getId());
 
+        var orderItemsModel = new OrderItems();
+        BeanUtils.copyProperties(orderItemsOptional.get(), orderItemsModel);
+        orderItemsModel.setId(orderItemsOptional.get().getId());
+        orderItemsModel.setAmount(orderItem.getAmount());
         orderItemsModel.setId(orderItemsOptional.get().getId());
         orderItemsModel.setOrder_id(orderItemsOptional.get().getOrder_id());
         orderItemsModel.setCreatedAt(orderItemsOptional.get().getCreatedAt());
         orderItemsModel.setFullValue(orderItemsOptional.get().getFullValue());
-        Float newValueFull = orderItem.getPrice() * orderItem.getAmount();
+
+        Float newValueFull = orderItemsOptional.get().getPrice() * orderItem.getAmount();
         Float oldValueFull = orderItemsModel.getFullValue();
         Float auxValueFull = newValueFull - oldValueFull;
+
         orderItemsModel.setFullValue(newValueFull);
         updateFullValue(auxValueFull);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderItemsRepository.save(orderItemsModel));

@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/stock")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequestMapping("/stock")
 public class StockController {
 
     @Autowired

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Sort;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;
@@ -43,6 +44,7 @@ public class SaleController {
     @GetMapping("/all")
     @RolesAllowed("ADMIN")
     public List<Sale> getAllSale(){
+        //TODO: Retornar so os comprados
         return saleRepository.findAll();
     }
 

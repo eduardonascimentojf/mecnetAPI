@@ -63,16 +63,17 @@ public class StockService implements ProductsQuantity {
         if (productOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Produto não encontrado!");
         }
-        var productModel = new Product();
+        Product productModel = new Product();
         BeanUtils.copyProperties(product, productModel);
-        productModel.setId(productOptional.get().getId());
 
+        productModel.setId(productOptional.get().getId());
         productModel.setStock_id(productOptional.get().getStock_id());
         productModel.setAutoStock(productOptional.get().getAutoStock());
         productModel.setCreatedAt(productOptional.get().getCreatedAt());
-
-        setProductsQuantity(product.getStock() - productOptional.get().getStock() );
-
+        if(product.getStock() < productOptional.get().getStock()){
+            setProductsQuantity(productOptional.get().getStock() - product.getStock() );
+        }else
+            setProductsQuantity(productOptional.get().getStock() + product.getStock() );
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
 
     }

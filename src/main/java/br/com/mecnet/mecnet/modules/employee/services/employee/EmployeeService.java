@@ -42,11 +42,15 @@ public class EmployeeService {
         }
         var employeeModel = new Employee();
         BeanUtils.copyProperties(employee, employeeModel);
-        employeeModel.setId(employeeOptional.get().getId());
+        employeeModel.setId(id);
         String auxRole = "ROLE_USER";
         if(employee.getIsAdmin()) auxRole = "ROLE_ADMIN";
         employeeModel.setRole(auxRole);
-        employeeModel.setPassWord(passwordEncoder().encode(employee.getPassWord()));
+        if(employee.getPassWord().length() > 5){
+            employeeModel.setPassWord(passwordEncoder().encode(employee.getPassWord()));
+        }else{
+            employeeModel.setPassWord(employeeOptional.get().getPassword());
+        }
         employeeModel.setCreatedAt(employeeOptional.get().getCreatedAt());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeRepository.save(employeeModel));

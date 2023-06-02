@@ -134,7 +134,7 @@ public class SaleService {
             productModel.setAutoStock(productOptional.get().getAutoStock());
             productModel.setCreatedAt(productOptional.get().getCreatedAt());
             productModel.setStock(productOptional.get().getStock() - saleProduct.getAmount());
-            quantityProductsAdd.addAndGet(saleProduct.getAmount());
+            quantityProductsAdd.addAndGet(saleProduct.getAmount()*-1);
             productRepository.save(productModel);
 
         }
@@ -197,7 +197,7 @@ public class SaleService {
 
             Sale saleModel = new Sale();
             BeanUtils.copyProperties(saleOptional.get(), saleModel);
-            saleModel.setPrice(saleProduct.getFullValue());
+            saleModel.setPrice(saleProduct.getFullValue()+saleOptional.get().getPrice());
             saleModel.getProductsList().add(saleProduct);
             saleRepository.save(saleModel);
 
