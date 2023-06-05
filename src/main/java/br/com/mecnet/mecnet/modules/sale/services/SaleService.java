@@ -133,7 +133,7 @@ public class SaleService {
             productModel.setStock_id(productOptional.get().getStock_id());
             productModel.setAutoStock(productOptional.get().getAutoStock());
             productModel.setCreatedAt(productOptional.get().getCreatedAt());
-            productModel.setStock(productOptional.get().getStock() - saleProduct.getAmount());
+            productModel.setStock(productOptional.get().getStock() - saleProduct.getAmount()    );
             quantityProductsAdd.addAndGet(saleProduct.getAmount()*-1);
             productRepository.save(productModel);
 
