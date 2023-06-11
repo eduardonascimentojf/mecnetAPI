@@ -5,6 +5,7 @@ import br.com.mecnet.mecnet.modules.sale.Dtos.SaleRequestDto;
 import br.com.mecnet.mecnet.modules.sale.Entity.Sale;
 import br.com.mecnet.mecnet.modules.sale.repositories.SaleRepository;
 import br.com.mecnet.mecnet.modules.sale.services.SaleService;
+import br.com.mecnet.mecnet.modules.stock.Dtos.RemoveItemsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,12 @@ public class SaleController {
     @RolesAllowed({"USER","ADMIN"})
     public Optional<Sale> getSale(@PathVariable(value = "id") UUID id){
         return saleRepository.findById(id);
+    }
+
+    @GetMapping("/priceSaleTotal")
+    @RolesAllowed({"USER","ADMIN"})
+    public ResponseEntity<Object> getAllPrice(){
+        return saleService.getAllPrice();
     }
 
     @GetMapping("/salesEmploy")
@@ -67,11 +74,11 @@ public class SaleController {
 //        return saleService.checkout(id);
 //    }
 
-//    @DeleteMapping("/removeItems")
-//    @RolesAllowed({"USER","ADMIN"})
-//    public ResponseEntity<Object> removeProductInSale(@RequestBody RemoveItemsDto data){
-//        return saleService.removeProductInSale(data);
-//    }
+    @DeleteMapping("/removeItems")
+    @RolesAllowed({"USER","ADMIN"})
+    public ResponseEntity<Object> removeProductInSale(@RequestBody RemoveItemsDto data){
+        return saleService.removeProductInSale(data);
+    }
 
     @GetMapping("/cancelSale/{id}")
     @RolesAllowed("ADMIN")

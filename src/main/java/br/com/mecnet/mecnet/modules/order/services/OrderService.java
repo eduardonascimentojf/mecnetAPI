@@ -7,6 +7,7 @@ import br.com.mecnet.mecnet.modules.order.Entity.Order;
 import br.com.mecnet.mecnet.modules.order.Entity.OrderItems;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderItemsRepository;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderRepository;
+import br.com.mecnet.mecnet.modules.sale.Entity.Sale;
 import br.com.mecnet.mecnet.modules.stock.Dtos.ProductRequestDto;
 import br.com.mecnet.mecnet.modules.stock.Entity.AutoStock;
 import br.com.mecnet.mecnet.modules.stock.Entity.Product;
@@ -240,6 +241,19 @@ public class OrderService {
         orderItemsModel.setFullValue(newValueFull);
         updateFullValue(auxValueFull);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderItemsRepository.save(orderItemsModel));
+    }
+    public ResponseEntity<Object> getAllPrice(){
+        float priceTotal = 0;
+        List<Order> orderPriceOptional = orderRepository.findAll();
+        if(orderPriceOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Não existe pedido no sistema !");
+
+        }
+        for (Order order : orderPriceOptional) {
+            if(order.getIsComplete())
+                priceTotal+= order.getFullValue();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(priceTotal);
 
     }
 }

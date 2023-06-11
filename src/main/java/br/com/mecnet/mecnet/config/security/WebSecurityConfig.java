@@ -34,7 +34,7 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeHttpRequests()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .antMatchers("/employee").hasRole("ADMIN")
+                .antMatchers("/employee").permitAll()
                 .anyRequest().authenticated()
                 .and().cors()
                 .and().addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)

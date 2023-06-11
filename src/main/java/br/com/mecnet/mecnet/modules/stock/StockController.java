@@ -40,8 +40,6 @@ public class StockController {
         if(optionalStock.isEmpty()){
             Stock Newstock = new Stock();
             return stockRepository.save(Newstock);
-
-
         }
         return optionalStock.get(0);
 

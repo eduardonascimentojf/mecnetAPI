@@ -39,7 +39,11 @@ public class OrderController {
     public List<Order> getAllOrder(){
         return orderRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
     }
-
+    @GetMapping("/priceOrderTotal")
+    @RolesAllowed({"USER","ADMIN"})
+    public ResponseEntity<Object> getAllPrice(){
+        return orderService.getAllPrice();
+    }
     @GetMapping("/{id}")
     @RolesAllowed({"USER","ADMIN"})
         public Optional<Order> getOrderById(@PathVariable(value = "id") UUID id){

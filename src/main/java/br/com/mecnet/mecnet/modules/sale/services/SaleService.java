@@ -9,6 +9,7 @@ import br.com.mecnet.mecnet.modules.sale.Entity.Sale;
 import br.com.mecnet.mecnet.modules.sale.Entity.SaleProduct;
 import br.com.mecnet.mecnet.modules.sale.repositories.SaleProductRepository;
 import br.com.mecnet.mecnet.modules.sale.repositories.SaleRepository;
+import br.com.mecnet.mecnet.modules.stock.Dtos.RemoveItemsDto;
 import br.com.mecnet.mecnet.modules.stock.Entity.Product;
 import br.com.mecnet.mecnet.modules.stock.repositories.ProductRepository;
 import br.com.mecnet.mecnet.modules.stock.services.StockService;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
 
 @Service
 public class SaleService {
@@ -90,23 +92,23 @@ public class SaleService {
 //
 //        return ResponseEntity.status(HttpStatus.CREATED).body(saleProduct);
 //    }
-//    public ResponseEntity<Object> removeProductInSale(RemoveItemsDto data) {
-//
-//        Optional<SaleProduct> saleProductOptional = saleProductRepository.findById(data.id());
-//
-//        if(saleProductOptional.isEmpty()){
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflit: Não foi possivel remover da lista");
-//        }
-//        Optional<Sale> saleOptional = saleRepository.findById(data.saleId());
-//
-//        Sale newSale = new Sale();
-//        BeanUtils.copyProperties(saleOptional.get(), newSale);
-//        newSale.setId(saleOptional.get().getId());
-//        newSale.setPrice( newSale.getPrice() - saleProductOptional.get().getFullValue());
-//        saleProductRepository.deleteById(data.id());
-//
-//        return  ResponseEntity.status(HttpStatus.CREATED).body(saleRepository.save(newSale));
-//    }
+    public ResponseEntity<Object> removeProductInSale(RemoveItemsDto data) {
+
+        Optional<SaleProduct> saleProductOptional = saleProductRepository.findById(data.id());
+
+        if(saleProductOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflit: Não foi possivel remover da lista");
+        }
+        Optional<Sale> saleOptional = saleRepository.findById(data.saleId());
+
+        Sale newSale = new Sale();
+        BeanUtils.copyProperties(saleOptional.get(), newSale);
+        newSale.setId(saleOptional.get().getId());
+        newSale.setPrice( newSale.getPrice() - saleProductOptional.get().getFullValue());
+        saleProductRepository.deleteById(data.id());
+
+        return  ResponseEntity.status(HttpStatus.CREATED).body(saleRepository.save(newSale));
+    }
 
     public void checkout(UUID id){
         AtomicInteger quantityProductsAdd  = new AtomicInteger();
@@ -126,6 +128,10 @@ public class SaleService {
                 ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Produto não encontrado!");
                 return;
             }
+            if (productOptional.get().getStock() < saleProduct.getAmount()) {
+                ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Não há "+saleProduct.getAmount() + " unidades em estoque!");
+                return;
+            }
 
             var productModel = new Product();
             BeanUtils.copyProperties(productOptional.get(), productModel);
@@ -133,8 +139,8 @@ public class SaleService {
             productModel.setStock_id(productOptional.get().getStock_id());
             productModel.setAutoStock(productOptional.get().getAutoStock());
             productModel.setCreatedAt(productOptional.get().getCreatedAt());
-            productModel.setStock(productOptional.get().getStock() - saleProduct.getAmount()    );
-            quantityProductsAdd.addAndGet(saleProduct.getAmount()*-1);
+            productModel.setStock(productOptional.get().getStock() - saleProduct.getAmount());
+            quantityProductsAdd.addAndGet(saleProduct.getAmount());
             productRepository.save(productModel);
 
         }
@@ -146,7 +152,7 @@ public class SaleService {
         saleModel.setCreatedAt(saleOptional.get().getCreatedAt());
         saleRepository.save(saleModel);
 
-        stockService.setProductsQuantity(quantityProductsAdd.get() *-1);
+        stockService.setProductsQuantity(quantityProductsAdd.get()*-1);
         ResponseEntity.status(HttpStatus.CREATED).body("Compra finalizada!");
     }
     public void cancelSale(UUID id) {
@@ -160,8 +166,9 @@ public class SaleService {
         for (SaleProduct product : listProductsSale) {
             readjust(product, quantityProductsAdd);
         }
+        saleRepository.deleteById(id);
         stockService.setProductsQuantity(quantityProductsAdd.get());
-//        saleRepository.deleteById(id);
+
         ResponseEntity.status(HttpStatus.CREATED).body("Cancelado com sucessso");
     }
 
@@ -179,6 +186,8 @@ public class SaleService {
         productReset.setCreatedAt(productReset.getCreatedAt());
         productRepository.save(productReset);
         quantityProductsAdd.addAndGet(saleproduct.getAmount());
+
+        saleProductRepository.deleteById(saleproduct.getId());
     }
 
     @Transactional
@@ -191,9 +200,7 @@ public class SaleService {
             BeanUtils.copyProperties(product, saleProductModel);
             saleProductModel.setSale_id(saleOptional.orElse(null));
             saleProductModel.setFullValue(product.getPrice() * product.getAmount());
-
             SaleProduct saleProduct =  saleProductRepository.save(saleProductModel);
-
 
             Sale saleModel = new Sale();
             BeanUtils.copyProperties(saleOptional.get(), saleModel);
@@ -211,6 +218,20 @@ public class SaleService {
         BeanUtils.copyProperties(saleOptional.get(), saleModel);
         saleModel.setPrice(priceTotal);
         saleRepository.save(saleModel);
+
+    }
+    public ResponseEntity<Object> getAllPrice(){
+        float priceTotal = 0;
+        List<Sale> salePriceOptional = saleRepository.findAll();
+        if(salePriceOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Não existe venda no sistema !");
+
+        }
+        for (Sale sale : salePriceOptional) {
+
+                priceTotal+= sale.getPrice();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(priceTotal);
 
     }
 }

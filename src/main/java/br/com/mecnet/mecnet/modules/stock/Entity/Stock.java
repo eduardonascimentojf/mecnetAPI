@@ -28,7 +28,7 @@ public class Stock {
     private UUID id;
 
     @Column(name = "capacity", nullable = false)
-    private Integer capacity = 100;
+    private Integer capacity = 500;
 
     @Column(name = "productsQuantity", nullable = false)
     private Integer productsQuantity = 0;

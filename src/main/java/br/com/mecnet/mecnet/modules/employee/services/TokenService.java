@@ -21,7 +21,7 @@ public class TokenService {
                 .withSubject(employee.getUsername())
                 .withClaim("id", String.valueOf(employee.getId()))
                 .withExpiresAt(Date.from(LocalDateTime.now()
-                        .plusDays(7)
+                        .plusHours(6)
                         .toInstant(ZoneOffset.of("-03:00")))
                 ).sign(Algorithm.HMAC256(tokenSecret));
     }
