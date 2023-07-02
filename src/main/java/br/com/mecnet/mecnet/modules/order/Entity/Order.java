@@ -1,5 +1,6 @@
 package br.com.mecnet.mecnet.modules.order.Entity;
 
+import br.com.mecnet.mecnet.modules.stock.Entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,8 @@ public class Order {
     @Column(name = "fullValue", nullable = false)
     private Float fullValue = 0F;
 
-    @OneToMany(mappedBy = "order_id")
+//    @OneToMany(mappedBy = "order_id")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order_id", cascade = CascadeType.ALL)
     private List<OrderItems> listOrderItems = new ArrayList<>();
 
     @CreationTimestamp
@@ -49,6 +51,8 @@ public class Order {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+
 
 }
 

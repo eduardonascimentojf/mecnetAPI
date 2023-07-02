@@ -28,9 +28,6 @@ public class SaleController {
     @Autowired
     private SaleService saleService;
 
-
-
-
     @GetMapping("/{id}")
     @RolesAllowed({"USER","ADMIN"})
     public Optional<Sale> getSale(@PathVariable(value = "id") UUID id){

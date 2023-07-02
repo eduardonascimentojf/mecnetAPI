@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,6 +50,10 @@ public class EmployeeController {
 
     @DeleteMapping
     public ResponseEntity<String> deleteEmployee(@RequestBody EmployeeDeleteDto deleteDto){
+        Optional<Employee> employeeOptional = employeeRepository.findById(deleteDto.id());
+        if(Objects.equals(employeeOptional.get().getEmail(), "admin@mecnet") && Objects.equals(employeeOptional.get().getUsername(), "admin")){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflit: O usuário não pode ser deletado!");
+        }
         employeeRepository.deleteById(deleteDto.id());
         return ResponseEntity.status(HttpStatus.OK).body("Excluído com sucesso");
     }

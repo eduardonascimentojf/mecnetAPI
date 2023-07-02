@@ -7,8 +7,6 @@ import br.com.mecnet.mecnet.modules.order.Entity.Order;
 import br.com.mecnet.mecnet.modules.order.Entity.OrderItems;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderItemsRepository;
 import br.com.mecnet.mecnet.modules.order.repositories.OrderRepository;
-import br.com.mecnet.mecnet.modules.sale.Entity.Sale;
-import br.com.mecnet.mecnet.modules.stock.Dtos.ProductRequestDto;
 import br.com.mecnet.mecnet.modules.stock.Entity.AutoStock;
 import br.com.mecnet.mecnet.modules.stock.Entity.Product;
 import br.com.mecnet.mecnet.modules.stock.Entity.Stock;
@@ -22,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +50,9 @@ public class OrderService {
         Optional<Order> orderOptional = orderRepository.findById(id);
         if(orderOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Pedido não encontrado!");
+        }
+        if(orderOptional.get().getListOrderItems().isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Nenhum item adicionado!");
         }
         var orderModel = new Order();
         BeanUtils.copyProperties(orderOptional.get(), orderModel);
@@ -167,6 +170,7 @@ public class OrderService {
 
         ResponseEntity.status(HttpStatus.CREATED).body("Atualizado com sucesso");
     }
+
     public ResponseEntity<Object> createOrderItems(OrderItems data) {
         var orderOptional = orderRepository.findOrderByIsComplete(false);
         if(orderOptional.isEmpty()){
@@ -174,6 +178,7 @@ public class OrderService {
             orderRepository.save(newOrder);
             orderOptional = orderRepository.findOrderByIsComplete(false);
         }
+
         List<OrderItems> items = new ArrayList<>(orderOptional.get().getListOrderItems());
         for (OrderItems item : items) {
             if (item.getProductCatalogId().equals(data.getProductCatalogId())) {
@@ -196,7 +201,8 @@ public class OrderService {
         ResponseEntity.status(HttpStatus.CREATED).body(orderRepository.save(orderModel));
 
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderItems);
+       return ResponseEntity.status(HttpStatus.CREATED).body(orderItems);
+
     }
     public ResponseEntity<Object> updateOrderItems(OrderItems orderItem, UUID id) {
         Optional<OrderItems> orderItemsOptional = orderItemsRepository.findById(id);

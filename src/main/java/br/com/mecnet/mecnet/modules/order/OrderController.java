@@ -37,7 +37,7 @@ public class OrderController {
     @GetMapping("/all")
     @RolesAllowed({"USER","ADMIN"})
     public List<Order> getAllOrder(){
-        return orderRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
+        return orderRepository.findAllByIsComplete(true, Sort.by(Sort.Direction.DESC, "updatedAt"));
     }
     @GetMapping("/priceOrderTotal")
     @RolesAllowed({"USER","ADMIN"})
@@ -94,6 +94,8 @@ public class OrderController {
         orderModel.setId(orderOptional.get().getId());
         orderModel.setCreatedAt(orderOptional.get().getCreatedAt());
         orderModel.setFullValue(orderOptional.get().getFullValue() - orderItemsOptional.get().getFullValue());
+        orderModel.getListOrderItems().remove(orderItemsOptional.get());
+        orderModel.setListOrderItems(orderModel.getListOrderItems());
         ResponseEntity.status(HttpStatus.CREATED).body(orderRepository.save(orderModel));
         orderItemsRepository.deleteById(data.id());
         return ResponseEntity.status(HttpStatus.OK).body("Removido com sucesso");

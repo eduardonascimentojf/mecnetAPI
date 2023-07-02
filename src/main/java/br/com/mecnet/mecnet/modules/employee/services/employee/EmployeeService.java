@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 @Service
@@ -39,6 +40,9 @@ public class EmployeeService {
         if(employeeOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Usuário não encontrado!");
 
+        }
+        if(Objects.equals(employeeOptional.get().getEmail(), "admin@mecnet") && Objects.equals(employeeOptional.get().getUsername(), "admin")){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflit: O usuário não pode ser aletrado!");
         }
         var employeeModel = new Employee();
         BeanUtils.copyProperties(employee, employeeModel);
