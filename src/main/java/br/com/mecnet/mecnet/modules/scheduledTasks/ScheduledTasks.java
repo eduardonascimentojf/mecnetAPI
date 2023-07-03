@@ -40,25 +40,23 @@ public class ScheduledTasks {
 
                 UUID idCatalog = product.getIdCatalog();
                 Optional<CatalogProduct> catalogProduct = catalogRepository.findById(idCatalog);
-                if (catalogProduct.isEmpty()) {
-                    return;
-                }
+                if (catalogProduct.isPresent()) {
 
-                if (catalogProduct.get().getPrice() <= product.getAutoStock().getMaxPrice() &&
-                        catalogProduct.get().getPrice() >= product.getAutoStock().getMinPrice() &&
-                        product.getStock() <= product.getAutoStock().getMaxQuantity() &&
-                        product.getStock() >= product.getAutoStock().getMinQuantity()
-                ) {
-                    OrderItems newOrderItems = new OrderItems();
-                    newOrderItems.setProductCatalogId(product.getIdCatalog());
-                    newOrderItems.setAmount(1);
-                    newOrderItems.setPrice(product.getPrice());
-                    newOrderItems.setFullValue(product.getPrice());
-                    newOrderItems.setDescription(product.getDescription());
-                    ResponseEntity<Object> object= orderService.createOrderItems(newOrderItems);
-                    System.out.println(Objects.requireNonNull(object.getBody()).toString());
+                    if (catalogProduct.get().getPrice() <= product.getAutoStock().getMaxPrice() &&
+                            catalogProduct.get().getPrice() >= product.getAutoStock().getMinPrice() &&
+                            product.getStock() <= product.getAutoStock().getMaxQuantity() &&
+                            product.getStock() >= product.getAutoStock().getMinQuantity()
+                    ) {
+                        OrderItems newOrderItems = new OrderItems();
+                        newOrderItems.setProductCatalogId(product.getIdCatalog());
+                        newOrderItems.setAmount(1);
+                        newOrderItems.setPrice(product.getPrice());
+                        newOrderItems.setFullValue(product.getPrice());
+                        newOrderItems.setDescription(product.getDescription());
+                        ResponseEntity<Object> object = orderService.createOrderItems(newOrderItems);
+                        System.out.println(Objects.requireNonNull(object.getBody()).toString());
+                    }
                 }
-
             }
         }
     }

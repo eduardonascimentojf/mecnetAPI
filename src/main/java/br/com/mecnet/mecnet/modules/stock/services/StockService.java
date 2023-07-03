@@ -67,6 +67,7 @@ public class StockService implements ProductsQuantity {
         BeanUtils.copyProperties(product, productModel);
 
         productModel.setId(productOptional.get().getId());
+        productModel.setIdCatalog(productOptional.get().getIdCatalog());
         productModel.setStock_id(productOptional.get().getStock_id());
         productModel.setAutoStock(productOptional.get().getAutoStock());
         productModel.setCreatedAt(productOptional.get().getCreatedAt());
