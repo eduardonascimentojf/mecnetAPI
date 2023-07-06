@@ -32,7 +32,6 @@ public class ScheduledTasks {
     public void execute()  {
 
         List<Product> products = productRepository.findAll();
-
         if (products.isEmpty()) return;
         for (Product product : products) {
 
